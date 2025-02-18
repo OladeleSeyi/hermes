@@ -1,0 +1,54 @@
+envVarGroups:
+  - name: avax-indexer-envs
+
+databases:
+  - name: avax-indexer-db
+
+services:
+  - type: web
+    name: avax-indexer-be
+    env: node
+    region: oregon
+    buildCommand: ./render-build.sh
+    startCommand: npm run start:prod
+    plan: starter
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: avax-indexer-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          name: avax-indexer-redis
+          type: redis
+          property: connectionString
+      - key: AVAX_RPC_URL
+        sync: false
+      - key: USDC_CONTRACT_ADDRESS
+        sync: false
+      - key: USDC_ABI
+        sync: false
+
+  # - type: worker
+  #   name: avax-indexer-be-pubsub-worker
+  #   env: node
+  #   region: oregon
+  #   buildCommand: ./render-build.sh
+  #   startCommand: npm run start:worker
+  #   plan: starter
+  #   envVars:
+  #     - key: DATABASE_URL
+  #       fromDatabase:
+  #         name: avax-indexer-db
+  #         property: connectionString
+  #     - key: REDIS_URL
+  #       fromService:
+  #         name: avax-indexer-redis
+  #         type: redis
+  #         property: connectionString
+
+  - type: redis
+    name: avax-indexer-redis
+    region: oregon
+    plan: free
+    ipAllowList: []
